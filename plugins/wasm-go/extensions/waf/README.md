@@ -4,11 +4,11 @@
 go run mage.go build
 ```
 
-You will find the WASM plugin under `./build/main.wasm`.
+You will find the WASM plugin under `./local/main.wasm`.
 
 
 # Local test
 ```bash
-cd build
+cd local
 docker compose up
 ```
