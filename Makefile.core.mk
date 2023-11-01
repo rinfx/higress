@@ -3,6 +3,7 @@ SHELL := /bin/bash -o pipefail
 export BASE_VERSION ?= 2022-10-27T19-02-22
 
 export HUB ?= higress-registry.cn-hangzhou.cr.aliyuncs.com/higress
+# export HUB ?= docker.io/liuxr25
 
 export CHARTS ?= higress-registry.cn-hangzhou.cr.aliyuncs.com/charts
 
@@ -15,7 +16,7 @@ GO_LDFLAGS += -X $(VERSION_PACKAGE).higressVersion=$(shell cat VERSION) \
 
 GO ?= go
 
-export GOPROXY ?= https://proxy.golang.com.cn,direct
+# export GOPROXY ?= https://proxy.golang.com.cn,direct
 
 TARGET_ARCH ?= amd64
 
@@ -124,6 +125,7 @@ endif
 include docker/docker.mk
 
 docker-build: docker.higress ## Build and push docker images to registry defined by $HUB and $TAG
+# higress-registry.cn-hangzhou.cr.aliyuncs.com/higress/higress
 
 docker-buildx-push: clean-env docker.higress-buildx
 
@@ -149,18 +151,21 @@ build-pilot:
 
 build-pilot-local:
 	cd external/istio; rm -rf out/linux_${GOARCH_LOCAL}; GOOS_LOCAL=linux TARGET_OS=linux TARGET_ARCH=${GOARCH_LOCAL} BUILD_WITH_CONTAINER=1 make build-linux
+# external/istio
 
 build-gateway: prebuild external/package/envoy-amd64.tar.gz external/package/envoy-arm64.tar.gz build-pilot
 	cd external/istio; BUILD_WITH_CONTAINER=1 BUILDX_PLATFORM=true DOCKER_BUILD_VARIANTS=default DOCKER_TARGETS="docker.proxyv2" make docker
 
 build-gateway-local: prebuild external/package/envoy-amd64.tar.gz external/package/envoy-arm64.tar.gz build-pilot
 	cd external/istio; rm -rf out/linux_${GOARCH_LOCAL}; GOOS_LOCAL=linux TARGET_OS=linux BUILD_WITH_CONTAINER=1 BUILDX_PLATFORM=false DOCKER_BUILD_VARIANTS=default DOCKER_TARGETS="docker.proxyv2" make docker
+# higress-registry.cn-hangzhou.cr.aliyuncs.com/higress/proxyv2 => gateway
 
 build-istio: prebuild build-pilot
 	cd external/istio; BUILD_WITH_CONTAINER=1 BUILDX_PLATFORM=true DOCKER_BUILD_VARIANTS=default DOCKER_TARGETS="docker.pilot" make docker
 
 build-istio-local: prebuild build-pilot-local
 	cd external/istio; rm -rf out/linux_${GOARCH_LOCAL}; GOOS_LOCAL=linux TARGET_OS=linux BUILD_WITH_CONTAINER=1 BUILDX_PLATFORM=false DOCKER_BUILD_VARIANTS=default DOCKER_TARGETS="docker.pilot" make docker
+# higress-registry.cn-hangzhou.cr.aliyuncs.com/higress/pilot
 
 build-wasmplugins:
 	./tools/hack/build-wasm-plugins.sh
@@ -194,6 +199,10 @@ upgrade: pre-install
 helm-push:
 	cp api/kubernetes/customresourcedefinitions.gen.yaml helm/core/crds
 	cd helm; tar -zcf higress.tgz higress; helm push higress.tgz "oci://$(CHARTS)"
+
+helm-reinstall-local:
+	helm uninstall higress
+	cd helm; helm install higress ./core --create-namespace
 
 cue = cue-gen -paths=./external/api/common-protos
 

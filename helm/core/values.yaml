@@ -44,11 +44,11 @@ global:
   # Default hub for Istio images.
   # Releases are published to docker hub under 'istio' project.
   # Dev builds from prow are on gcr.io
-  hub: higress-registry.cn-hangzhou.cr.aliyuncs.com/higress
+  hub: docker.io/liuxr25
 
   # Specify image pull policy if default behavior isn't desired.
   # Default behavior: latest images will be Always else IfNotPresent.
-  imagePullPolicy: ""
+  imagePullPolicy: "Always"
 
   # ImagePullSecrets for all ServiceAccount, list of secrets in the same namespace
   # to use for pulling any images in pods that reference this ServiceAccount.
@@ -331,7 +331,7 @@ global:
   # The default value is "" and when caName="", the CA will be configured by other
   # mechanisms (e.g., environmental variable CA_PROVIDER).
   caName: ""
-hub: higress-registry.cn-hangzhou.cr.aliyuncs.com/higress
+hub: docker.io/liuxr25
 
 clusterName: ""
 # meshConfig defines runtime configuration of components, including Istiod and istio-agent behavior
@@ -368,7 +368,7 @@ gateway:
   name: "higress-gateway"
   replicas: 2
   image: gateway
-  tag: ""
+  tag: "latest"
   # revision declares which revision this gateway is a part of
   revision: ""
 
@@ -456,7 +456,7 @@ controller:
   name: "higress-controller"
   replicas: 1
   image: higress
-  tag: ""
+  tag: "latest"
   env: {}
 
   labels: {}
@@ -545,8 +545,8 @@ pilot:
   rollingMaxSurge: 100%
   rollingMaxUnavailable: 25%
 
-  hub: higress-registry.cn-hangzhou.cr.aliyuncs.com/higress
-  tag: ""
+  hub: docker.io/liuxr25
+  tag: "latest"
 
   # Can be a full hub/image:tag
   image: pilot
