@@ -27,7 +27,6 @@ func parseConfig(json gjson.Result, config *AIPromptTemplateConfig, log wrapper.
 	config.templates = make(map[string]string)
 	for _, v := range json.Get("templates").Array() {
 		config.templates[v.Get("name").String()] = v.Get("template").Raw
-		log.Info(v.Get("template").Raw)
 	}
 	return nil
 }

@@ -30,19 +30,22 @@ templates:
     model: gpt-3.5-turbo
     messages:
     - role: system
-      content: "You are a {{program}} expert, in {{language}} programming language."
+      content: "你是一个 {{program}} 专家, 你平时使用的编程语言为 {{language}} ."
     - role: user
-      content: "Write me a {{program}} program."
+      content: "帮我写一个 {{program}} 程序."
 ```
 
 使用以上配置的请求body示例：
 
-```json
-{
+```bash
+curl http://localhost/test \
+-H "content-type: application/json" \
+-H "template-enable: true" \
+-d '{
   "template": "developer-chat",
   "properties": {
-    "program": "quick sort",
+    "program": "冒泡排序",
     "language": "python"
   }
-}
+}'
 ```
