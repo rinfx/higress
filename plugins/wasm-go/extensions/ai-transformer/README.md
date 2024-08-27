@@ -3,14 +3,14 @@
 
 # 配置说明
 | Name | Type | Requirement | Default | Description |
-| :- | :-  | :-  | :- | :- |
-| request.enable | bool | requried | - | 是否在request阶段开启转换 |
-| request.prompt | string | requried | - | request阶段转换使用的prompt |
-| response.enable | string | requried | - | 是否在response阶段开启转换 |
-| response.prompt | string | requried | - | response阶段转换使用的prompt |
-| provider.serviceName | string | requried | - | DNS类型的服务名，目前仅支持通义千问 |
-| provider.domain | string | requried | - | LLM服务域名 |
-| provider.apiKey | string | requried | - | 阿里云dashscope服务的API Key |
+| ------------ | ------------ | ------------ | ------------ | ------------ |
+| `request.enable` | bool | requried | - | 是否在request阶段开启转换 |
+| `request.prompt` | string | requried | - | request阶段转换使用的prompt |
+| `response.enable` | string | requried | - | 是否在response阶段开启转换 |
+| `response.prompt` | string | requried | - | response阶段转换使用的prompt |
+| `provider.serviceName` | string | requried | - | DNS类型的服务名，目前仅支持通义千问 |
+| `provider.domain` | string | requried | - | LLM服务域名 |
+| `provider.apiKey` | string | requried | - | 阿里云dashscope服务的API Key |
 
 # 配置示例
 ```yaml

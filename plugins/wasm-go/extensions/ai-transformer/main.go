@@ -53,10 +53,18 @@ const llmRequestTemplate = `{
 }`
 
 func parseConfig(json gjson.Result, config *AITransformerConfig, log wrapper.Log) error {
-	config.requestTransformEnable = json.Get("request.enable").Bool()
-	config.requestTransformPrompt = json.Get("request.prompt").String()
-	config.responseTransformEnable = json.Get("response.enable").Bool()
-	config.responseTransformPrompt = json.Get("response.prompt").String()
+	if json.Get("request.enable").Exists() {
+		config.requestTransformEnable = json.Get("request.enable").Bool()
+		config.requestTransformPrompt = json.Get("request.prompt").String()
+	} else {
+		config.requestTransformEnable = false
+	}
+	if json.Get("response.enable").Exists() {
+		config.responseTransformEnable = json.Get("response.enable").Bool()
+		config.responseTransformPrompt = json.Get("response.prompt").String()
+	} else {
+		config.responseTransformEnable = false
+	}
 	config.providerAPIKey = json.Get("provider.apiKey").String()
 	config.client = wrapper.NewClusterClient(wrapper.DnsCluster{
 		ServiceName: json.Get("provider.serviceName").String(),
