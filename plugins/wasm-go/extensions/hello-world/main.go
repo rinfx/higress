@@ -15,9 +15,6 @@
 package main
 
 import (
-	"net/http"
-
-	"github.com/higress-group/proxy-wasm-go-sdk/proxywasm"
 	"github.com/higress-group/proxy-wasm-go-sdk/proxywasm/types"
 
 	"github.com/alibaba/higress/plugins/wasm-go/pkg/wrapper"
@@ -34,10 +31,7 @@ type HelloWorldConfig struct {
 }
 
 func onHttpRequestHeaders(ctx wrapper.HttpContext, config HelloWorldConfig, log wrapper.Log) types.Action {
-	err := proxywasm.AddHttpRequestHeader("hello", "world")
-	if err != nil {
-		log.Critical("failed to set request header")
-	}
-	proxywasm.SendHttpResponseWithDetail(http.StatusOK, "hello-world", nil, []byte("hello world"), -1)
+	arr := []string{"hello", "world"}
+	log.Info(arr[2])
 	return types.ActionContinue
 }
