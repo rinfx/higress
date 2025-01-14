@@ -25,7 +25,7 @@ Plugin Priority: `300`
 | `checkResponse` | bool | optional | false | check if the output is legal |
 | `requestCheckService` | string | optional | llm_query_moderation | Aliyun yundun service name for input check |
 | `responseCheckService` | string | optional | llm_response_moderation | Aliyun yundun service name for output check |
-| `requestContentJsonPath` | string | optional | `messages.@reverse.0.content` | Specify the jsonpath of the content to be detected in the request body |
+| `requestContentJsonPath` | string | optional | `messages.@reverse.#(role="user").content` | Specify the jsonpath of the content to be detected in the request body |
 | `responseContentJsonPath` | string | optional | `choices.0.message.content` | Specify the jsonpath of the content to be detected in the response body |
 | `responseStreamContentJsonPath` | string | optional | `choices.0.delta.content` | Specify the jsonpath of the content to be detected in the streaming response body |
 | `denyCode` | int | optional | 200 | Response status code when the specified content is illegal |

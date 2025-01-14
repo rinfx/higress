@@ -48,7 +48,7 @@ const (
 
 	DefaultRequestCheckService       = "llm_query_moderation"
 	DefaultResponseCheckService      = "llm_response_moderation"
-	DefaultRequestJsonPath           = "messages.@reverse.0.content"
+	DefaultRequestJsonPath           = `messages.@reverse.#(role="user").content`
 	DefaultResponseJsonPath          = "choices.0.message.content"
 	DefaultStreamingResponseJsonPath = "choices.0.delta.content"
 	DefaultDenyCode                  = 200
