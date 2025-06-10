@@ -28,50 +28,59 @@ func init() {
 }
 
 type LBConfig struct {
-	key    string
-	count  int64
-	window int64
+	criticalModels map[string]struct{}
 }
 
 func parseConfig(json gjson.Result, config *LBConfig, log wrapper.Log) error {
+	config.criticalModels = make(map[string]struct{})
+	for _, model := range json.Get("criticalModels").Array() {
+		config.criticalModels[model.String()] = struct{}{}
+	}
 	return nil
 }
 
 // Callbacks which are called in request path
 func onHttpRequestHeaders(ctx wrapper.HttpContext, config LBConfig, log wrapper.Log) types.Action {
-	return types.ActionContinue
+	// If return types.ActionContinue, SetUpstreamOverrideHost will failed
+	return types.HeaderStopIteration
 }
 
 func onHttpRequestBody(ctx wrapper.HttpContext, config LBConfig, body []byte, log wrapper.Log) types.Action {
+	requestModel := gjson.GetBytes(body, "model")
+	if !requestModel.Exists() {
+		return types.ActionContinue
+	}
+	_, isCritical := config.criticalModels[requestModel.String()]
 	llmReq := &scheduling.LLMRequest{
-		Model:    "meta-llama/Llama-2-7b-hf",
-		Critical: true,
+		Model:    requestModel.String(),
+		Critical: isCritical,
 	}
 	hostInfos, err := proxywasm.GetUpstreamHosts()
-	log.Infof("%+v", hostInfos)
 	if err != nil {
 		return types.ActionContinue
 	}
 	hostMetrics := make(map[string]string)
 	for _, hostInfo := range hostInfos {
-		hostMetrics[hostInfo[0]] = gjson.Get(hostInfo[1], "metrics").String()
+		if gjson.Get(hostInfo[1], "health_status").String() == "Healthy" {
+			hostMetrics[hostInfo[0]] = gjson.Get(hostInfo[1], "metrics").String()
+		}
 	}
-	// log.Infof("%v", hostMetrics)
-	// for addr, metric := range hostMetrics {
-	// 	log.Infof("--------\naddress: %s\nmetrics:\n%s", addr, metric)
-	// }
 	scheduler, err := GetScheduler(hostMetrics)
 	if err != nil {
-		log.Infof("initial scheduler failed: %v", err)
+		log.Debugf("initial scheduler failed: %v", err)
 		return types.ActionContinue
 	}
 	targetPod, err := scheduler.Schedule(llmReq)
+	log.Debugf("targetPod: %+v", targetPod.Address)
 	if err != nil {
-		log.Infof("pod select failed: %v", err)
-		return types.ActionContinue
+		log.Debugf("pod select failed: %v", err)
+		proxywasm.SendHttpResponseWithDetail(429, "from llm-load-balancer", nil, []byte("limited resources"), 0)
 	}
 	if isValidAddress(targetPod.Address) {
+		log.Debugf("override upstream host: %s", targetPod.Address)
 		proxywasm.SetUpstreamOverrideHost([]byte(targetPod.Address))
+	} else {
+		log.Debugf("invalid address: %s", targetPod.Address)
 	}
 	return types.ActionContinue
 }

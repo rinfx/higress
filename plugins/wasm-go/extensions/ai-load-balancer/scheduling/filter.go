@@ -44,7 +44,7 @@ func (f *filter) Name() string {
 }
 
 func (f *filter) Filter(req *LLMRequest, pods []*backend.PodMetrics) ([]*backend.PodMetrics, error) {
-	proxywasm.LogInfof("Running filter %q on request %v with %v pods", f.name, req, len(pods))
+	proxywasm.LogDebugf("Running filter %q on request %v with %v pods", f.name, req, len(pods))
 	filtered, err := f.filter(req, pods)
 
 	next := f.nextOnSuccessOrFailure
