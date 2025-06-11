@@ -20,7 +20,7 @@ func main() {}
 
 func init() {
 	wrapper.SetCtx(
-		"ai-load-balancer",
+		"ai-lbpolicy-leastbusy",
 		wrapper.ParseConfigBy(parseConfig),
 		wrapper.ProcessRequestHeadersBy(onHttpRequestHeaders),
 		wrapper.ProcessRequestBodyBy(onHttpRequestBody),
