@@ -107,11 +107,10 @@ var (
 	}
 )
 
-func NewScheduler(pm []*backend.PodMetrics) *Scheduler {
-
+func NewScheduler(pm []*backend.PodMetrics, f *filter) *Scheduler {
 	return &Scheduler{
 		podMetrics: pm,
-		filter:     defaultFilter,
+		filter:     f,
 	}
 }
 
@@ -135,6 +134,7 @@ func GetScheduler(hostMetrics map[string]string) (*Scheduler, error) {
 		return nil, errors.New("backend is not support llm scheduling")
 	}
 	var pms []*backend.PodMetrics
+	filter := defaultFilter
 	for addr, metric := range hostMetrics {
 		parser := expfmt.TextParser{}
 		metricFamilies, err := parser.TextToMetricFamilies(strings.NewReader(metric))
@@ -152,7 +152,11 @@ func GetScheduler(hostMetrics map[string]string) (*Scheduler, error) {
 		if err != nil {
 			return nil, err
 		}
+		// If no LoRA Adaptors, skip related filter
+		if pm.ActiveModels == nil {
+			filter = queueAndKVCacheFilter
+		}
 		pms = append(pms, pm)
 	}
-	return NewScheduler(pms), nil
+	return NewScheduler(pms, filter), nil
 }

@@ -30,6 +30,7 @@ func (lb LeastBusyLoadBalancer) HandleHttpRequestHeaders(ctx wrapper.HttpContext
 }
 
 func (lb LeastBusyLoadBalancer) HandleHttpRequestBody(ctx wrapper.HttpContext, body []byte) types.Action {
+	// start_time := time.Now().UnixMilli()
 	requestModel := gjson.GetBytes(body, "model")
 	if !requestModel.Exists() {
 		return types.ActionContinue
@@ -62,6 +63,8 @@ func (lb LeastBusyLoadBalancer) HandleHttpRequestBody(ctx wrapper.HttpContext, b
 	} else {
 		proxywasm.SetUpstreamOverrideHost([]byte(targetPod.Address))
 	}
+	// end_time := time.Now().UnixMilli()
+	// log.Infof("leastbusy lb rt: %d", end_time-start_time)
 	return types.ActionContinue
 }
 

@@ -24,6 +24,7 @@ import (
 	"time"
 
 	"github.com/alibaba/higress/plugins/wasm-go/extensions/ai-load-balancer/least_busy/backend"
+	"github.com/higress-group/wasm-go/pkg/log"
 
 	dto "github.com/prometheus/client_model/go"
 	"go.uber.org/multierr"
@@ -70,7 +71,10 @@ func PromToPodMetrics(
 	}
 
 	loraMetrics, _, err := getLatestLoraMetric(metricFamilies)
-	errs = multierr.Append(errs, err)
+	if err != nil {
+		log.Warnf("get lora metrics failed: %+v", err)
+	}
+	// errs = multierr.Append(errs, err)
 	/* TODO: uncomment once this is available in vllm.
 	kvCap, _, err := getGaugeLatestValue(metricFamilies, KvCacheMaxTokenCapacityMetricName)
 	errs = multierr.Append(errs, err)
@@ -99,7 +103,8 @@ func PromToPodMetrics(
 				}
 			}
 		}
-
+	} else {
+		updated.ActiveModels = nil
 	}
 
 	return updated, errs
